@@ -18,6 +18,7 @@
 
 package org.apache.paimon.trino;
 
+import org.apache.paimon.disk.IOManagerImpl;
 import org.apache.paimon.table.BucketMode;
 import org.apache.paimon.table.FileStoreTable;
 import org.apache.paimon.table.Table;
@@ -83,6 +84,7 @@ public class TrinoPageSinkProvider implements ConnectorPageSinkProvider {
                         batchWriteBuilder.withOverwrite();
                     }
                     BatchTableWrite write = batchWriteBuilder.newWrite();
+                    write.withIOManager(new IOManagerImpl(System.getProperty("java.io.tmpdir")));
                     return new TrinoPageSink(write);
                 },
                 TrinoPageSinkProvider.class.getClassLoader());
@@ -98,7 +100,7 @@ public class TrinoPageSinkProvider implements ConnectorPageSinkProvider {
             case BUCKET_UNAWARE:
                 break;
             default:
-                throw new IllegalArgumentException("Unknown bucket mode: " + mode);
+                throw new IllegalArgumentException("Unsupported bucket mode: " + mode);
         }
     }
 
